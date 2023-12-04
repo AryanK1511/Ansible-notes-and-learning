@@ -25,9 +25,6 @@
 - **Built-in Modules:** Numerous Ansible modules support various operations.
 - **Environment Integration:** Easily integrate with CMDB databases for VM targeting or trigger automation from tools like ServiceNow.
 
-## Resources
 - **Documentation:** [docs.ansible.com](https://docs.ansible.com)
-- **Comprehensive Guides:** Hundreds of examples in documentation pages.
-- **Upcoming:** Fun exercises to reinforce learning.
 
 **Conclusion:** Ansible simplifies automation, making it accessible to all IT professionals. Stay tuned for hands-on exercises and in-depth Ansible tutorials. See you in the next lecture!
