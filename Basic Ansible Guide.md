@@ -14,61 +14,58 @@
 - Restart hosts in a specific order (e.g., web servers before database servers) by creating a playbook for sequential restart, invoking it whenever needed.
 - Setup a complex infrastructure spanning public/private clouds with hundreds of VMs. Provision VMs on Amazon and VMware, configure applications, set up communication, modify files, install applications, and configure firewall rules using playbooks.
 
-## Ansible Integration
+#### Ansible Integration
 - **Built-in Modules:** Numerous Ansible modules support various operations.
 - **Environment Integration:** Easily integrate with CMDB databases for VM targeting or trigger automation from tools like ServiceNow.
 
 - **Documentation:** [docs.ansible.com](https://docs.ansible.com)
 
-# Ansible Configuration Files
+#### Ansible Configuration Files
 
-## Introduction
+#### Introduction
 
-- Ansible configuration files are located at `/etc/ansible/ansible.cfg`.
+- Ansible configuration files are located at `/etc/ansible/ansible.cfg` by default.
 - The configuration file governs the default behavior of Ansible using parameters.
 - Sections include default, inventory, privileges_escalation, ssh_connection, and colors.
 - Options and values are specified within each section.
 
-## Configuration Options
+#### Configuration Options
 
 - Default parameters include inventory file location, log file location, modules/roles/plugins directory, etc.
 - Parameters may include the default location of the Ansible inventory file, log file location, modules/roles/plugins directory, whether facts should be gathered by default, SSH connection timeout, and the number of hosts targeted simultaneously.
 
-## Configuration Override
+#### Configuration Override
 
 - Override default parameters by copying the default configuration file into specific directories.
 - Make necessary changes in the copied files for specific requirements.
 - Alternatively, use environment variables to specify the location of a configuration file before running an Ansible playbook.
-- Configuration file priority: environment variable, local directory, user's home directory, default Ansible configuration file.
+- **Configuration file priority:** environment variable > local directory > user's home directory > default Ansible configuration file.
 
-## Use Case
+#### Use Case
+Imagine you have different playbooks for web, database, and networking with specific settings for each. You can copy the default configuration file into each playbook directory and make necessary changes. You can also override the configuration file's location using the `ansible_config` environment variable.
 
-- Example scenario: Different playbooks for web, database, and networking with specific settings for each.
-- Copy the default configuration file into each playbook directory and make necessary changes.
-- Override the configuration file's location using the `ansible_config` environment variable.
-
-## Single Parameter Override
+#### Single Parameter Override
 
 - Override a single parameter using an environment variable.
 - Determine the environment variable by converting the parameter to uppercase and prefixing `ANSIBLE_`.
 - Set environment variables using the `export` command for persistence.
 
-## Finding Configuration Information
+#### Finding Configuration Information
 
 - Use `ansible-config list` to see a list of configurations, their default values, and the values you can set.
 - Use `ansible-config view` to see the currently active configuration file.
 - Troubleshoot configurations using `ansible-config dump` to display current settings and their sources.
 
-# Configuring Inventory in Ansible
+## Configuring Inventory in Ansible
 
-## Introduction
+#### Introduction
 
 - Ansible works with one or multiple systems simultaneously.
 - Connectivity to servers is established using SSH for Linux and PowerShell Remoting for Windows.
 - Ansible is agentless, meaning no additional software needs to be installed on target machines.
 - Information about target systems is stored in an inventory file.
 
-## Inventory File Format
+#### Inventory File Format
 
 - Default inventory file is located at `etc/ansible/hosts`.
 - Sample inventory file in INI format.
@@ -76,137 +73,154 @@
 - Servers can be grouped using square brackets.
 - Multiple groups can be defined in a single inventory file.
 
-## Alias for Servers
+#### Alias for Servers
 
 - Servers can be referred to using an alias (e.g., web server or database server).
 - Use `ansible_host` parameter to assign FQDN or IP address to the alias.
 - Other inventory parameters: `ansible_connection`, `ansible_port`, `ansible_user`, `ansible_ssh_pass`.
 
-## Inventory Parameters
+#### Inventory Parameters
 
 - `ansible_connection`: Defines how Ansible connects to the target server (SSH or WIN RM).
 - `ansible_port`: Defines the port to connect to (default is 22 for SSH).
 - `ansible_user`: Defines the user used to make remote connections (default is root for Linux).
 - `ansible_ssh_pass`: Defines the SSH password for Linux.
 
-## Security Considerations
+#### Security Considerations
 
 - Best practice is to set up SSH key-based passwordless authentication.
 - For basic setup, a username and password can be used.
 
-## Lecture Summary
+## Grouping in Ansible
 
-- Inventory file holds information about target systems.
-- Servers can be grouped for efficient management.
-- Different inventory parameters define connection details.
-- Choose appropriate security measures based on requirements.
+#### Introduction
 
-## Coding Challenges
-
-- Practice working with Inventory Files and Ansible.
-- Apply concepts of aliasing, grouping, and parameterization.
-- Explore different scenarios in inventory configuration.
-
----
-
-# Grouping in Ansible
-
-## Introduction
-
-- Two hypothetical companies: a small startup and a multinational corporation.
 - INI and YAML inventory formats cater to different organizational needs.
 - Choose the format that suits project complexity.
 - Grouping in Ansible provides flexibility in managing servers.
 
-## INI Format
+#### INI Format
 
 - Simple and straightforward organizational chart.
 - Example of an INI format inventory.
+  ```ini
+  [web_servers]
+  web1 ansible_host=192.168.1.10 ansible_user=your_username ansible_ssh_pass=your_password
+  
+  [database_servers]
+  db1 ansible_host=192.168.1.20 ansible_user=your_username ansible_ssh_pass=your_password
+  
+  [load_balancers]
+  lb1 ansible_host=192.168.1.30 ansible_user=your_username ansible_ssh_pass=your_password
+  ```
 
-## YAML Format
+#### YAML Format
 
 - More structured and flexible organizational chart.
 - Example of a YAML format inventory.
-- Choose the format that best suits project needs.
+  ```yaml
+  all:
+  children:
+    web_servers:
+      hosts:
+        web1:
+          ansible_host: 192.168.1.10
+          ansible_user: your_username
+          ansible_ssh_private_key_file: /path/to/your/private/key
 
-## Grouping Feature
+    database_servers:
+      hosts:
+        db1:
+          ansible_host: 192.168.1.20
+          ansible_user: your_username
+          ansible_ssh_private_key_file: /path/to/your/private/key
+
+    load_balancers:
+      hosts:
+        lb1:
+          ansible_host: 192.168.1.30
+          ansible_user: your_username
+          ansible_ssh_private_key_file: /path/to/your/private/key
+
+  ```
+
+#### Grouping Feature
 
 - Grouping allows categorization of servers based on roles, locations, etc.
 - Efficiently manage and operate on a set of servers at once.
 - Parent-to-child relationships for more structured organization.
 
-## Parent-Child Relationships
+#### Parent-Child Relationships
 
 - Example of parent-to-child relationships in INI format.
+  ```ini
+  [web_servers]
+  web1 ansible_host=192.168.1.10 ansible_user=your_username ansible_ssh_private_key_file=/path/to/your/private/key
+  
+  [database_servers]
+  db1 ansible_host=192.168.1.20 ansible_user=your_username ansible_ssh_private_key_file=/path/to/your/private/key
+  
+  [load_balancers]
+  lb1 ansible_host=192.168.1.30 ansible_user=your_username ansible_ssh_private_key_file=/path/to/your/private/key
+  
+  [all:children]
+  web_servers
+  database_servers
+  load_balancers
+  ```
 - Use `:children` suffix to define child groups.
 - Define common configurations at the parent group level and specific configurations at the child group level.
 
-## YAML Format for Grouping
+#### YAML Format for Grouping
 
-- Example of parent-to-child relationships in YAML format.
 - Use `hosts` keyword for defining groups and `children` keyword for parent-child relationships.
 
-## Summary
-
-- Grouping in Ansible allows efficient server management.
-- Choose grouping strategies based on project needs.
-- Parent-to-child relationships offer a structured approach.
-
-## Next Steps
-
-- Apply grouping concepts in your Ansible projects.
-- Explore different scenarios for efficient server management.
-
-
-## Grouping Strategies
+#### Grouping Strategies
 
 - Group servers based on roles, locations, or any criteria relevant to the organization.
 - Example: Grouping web servers together.
 - Common configurations can be applied to the entire group.
 
-## Parent-Child Relationships
+#### Parent-Child Relationships
 
 - Parent groups and child groups for more structured organization.
-- Example of parent-to-child relationships for web servers in different locations.
 
-## INI Format
+#### INI Format
 
 - Groups defined using square brackets.
 - Parent-child relationships defined using `:children` suffix.
-- Example in INI format.
 
-## YAML Format
+#### YAML Format
 
 - Groups defined using the `hosts` keyword.
 - Parent-child relationships defined using the `children` keyword.
-- Example in YAML format for better readability.
 
-## Summary
+#### Summary
 
 - Ansible's grouping feature simplifies server management.
 - Choose grouping strategies based on project complexity.
 - Utilize parent-to-child relationships for structured organization.
 
-## Geographic Grouping
+#### Geographic Grouping
 
 - Grouping servers based on geographic location.
 - Example: Web servers in the U.S. and Europe.
 
-## Configuration Flexibility
+#### Configuration Flexibility
 
 - Grouping allows flexibility in applying configurations.
 - Common configurations at the parent group level.
 - Location-specific configurations at the child group level.
 
-# YAML Introduction
+## YAML Introduction
 
-## Overview
+#### Overview
 
 - Ansible Playbooks are written in YAML.
 - YAML (YAML Ain't Markup Language) is a human-readable data serialization format.
 - YAML is used for configuration data in Ansible.
 
-## YAML Basics
+#### YAML Basics
 
 - Key-value pairs are defined with a colon, separating the key and value.
 - Use a space followed by a colon to differentiate between key and value.
@@ -214,7 +228,7 @@
 - Dictionaries group properties under an item with aligned spaces.
 - Spaces are crucial in YAML to represent data correctly.
 
-## Key Concepts
+#### Key Concepts
 
 - Lists contain dictionaries, and dictionaries can contain lists.
 - Use dictionaries for single objects with properties.
@@ -222,13 +236,13 @@
 - A list of dictionaries represents multiple objects with different properties.
 - Understanding when to use a dictionary, list, or list of dictionaries is crucial.
 
-## Differences Between Dictionary and List
+#### Differences Between Dictionary and List
 
 - Dictionaries are unordered collections, order of properties doesn't matter.
 - Lists are ordered collections, order of items matters.
 - Comments in YAML start with a hash (#) symbol.
 
-## Notes
+#### Notes
 
 - Dictionaries are unordered, lists are ordered.
 - Order of properties in dictionaries doesn't matter.
