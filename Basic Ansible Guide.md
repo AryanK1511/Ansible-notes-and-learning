@@ -290,5 +290,119 @@ cars_information:
     model: "suv"
     transmission: "automatic"
     price: 35000
+```
+## Ansible Variables
 
+- Variables in Ansible store values that vary with different items.
+- Used for storing information like hostnames, usernames, passwords, etc.
+- Variables are defined in inventory files, playbooks, or dedicated variable files.
+
+#### Examples of Variables in Inventory
+```ini
+[web_servers]
+web1 ansible_host=192.168.1.10 ansible_user=your_username ansible_ssh_pass=your_password
+
+[database_servers]
+db1 ansible_host=192.168.1.20 ansible_user=your_username ansible_ssh_pass=your_password
+
+[load_balancers]
+lb1 ansible_host=192.168.1.30 ansible_user=your_username ansible_ssh_pass=your_password
+```
+
+### Using Variables in Playbooks
+
+- Variables can be defined inside playbooks using the vars directive.
+- Variables can also be stored in separate files dedicated to variables.
+- Variable interpolation is done using double curly braces {{ variable_name }}.
+
+#### Example Playbook with Variables
+```yaml
+- name: Configure DNS Entry
+  hosts: web_servers
+  vars:
+    dns_server: 8.8.8.8
+  tasks:
+    - name: Add DNS Entry
+      lineinfile:
+        path: /etc/resolv.conf
+        line: "nameserver {{ dns_server }}"
+```
+
+#### Organizing Variables in Host Variable File (web.yml)
+```yaml
+dns_server: 8.8.8.8
+```
+
+### Jinja2 Templating
+- Ansible uses Jinja2 Templating to interpolate variables.
+- Enclose variables in double curly braces: ```{{ variable_name }}```.
+
+### Variable Types
+1. String Variables: Sequences of characters.
+  ```yaml
+  username: admin
+  ```
+2. Number Variables: Hold integer or floating-point values.
+  ```yaml
+  max_connections: 100
+  ```
+3. Boolean Variables: Hold truthy or falsy values.
+  ```yaml
+  debug_mode: true
+  ```
+4. List Variables: Hold an ordered collection of values.
+  ```yaml
+  packages:
+    - package1
+    - package2
+    - package3
+  ```
+5. Dictionary Variables: Hold key-value pairs.
+  ```yaml
+  user:
+    name: John
+    age: 30
+  ```
+
+### Variable Precedence
+
+- Variables defined at different levels have different precedence.
+- Host variables take precedence over group variables.
+- Play-level variables override variables set at other levels.
+- Extra variables passed through the command line have the highest precedence.
+
+### Variable Scope
+
+- Variable scope determines where a variable is accessible.
+- Host Scope: Accessible within a play run for that host.
+- Play Scope: Accessible only within the play it is defined.
+- Global Scope: Variables accessible throughout the playbook execution.
+
+### Magic Variables
+
+Magic variables help access information across hosts.
+
+**Examples:**
+- hostvars: Get variables from other hosts.
+- groups: Get all hosts under a group.
+- group_names: Get groups a host is part of.
+- inventory_hostname: Get the name configured for the host in the inventory file.
+
+### Ansible Facts
+
+- Facts are information collected by Ansible about target machines.
+- Collected using the setup module.
+- Stored in the ansible_facts variable.
+- Facts include system details, network info, device info, date and time, etc.
+- Facts are automatically gathered when running a playbook unless explicitly disabled.
+- Disable facts gathering in a playbook using gather_facts: no.
+- Facts gathering behavior is controlled by the Gathering setting in the Ansible configuration file.
+
+```yaml
+- name: Print Ansible Facts
+  hosts: all
+  tasks:
+    - name: Debug Ansible Facts
+      debug:
+        var: ansible_facts
 ```
