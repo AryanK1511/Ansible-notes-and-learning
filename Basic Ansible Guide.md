@@ -406,3 +406,126 @@ Magic variables help access information across hosts.
       debug:
         var: ansible_facts
 ```
+
+## Playbooks in Ansible
+
+- Ansible Playbooks are Ansible's orchestration language.
+- Playbooks define what Ansible should do, ranging from simple commands to complex infrastructure deployment.
+- Written in YAML format.
+
+### Playbook Structure
+
+- A Playbook is a single YAML file containing a set of plays.
+- A play defines activities on a single or a group of hosts.
+- A task is a single action (e.g., executing a command, installing a package).
+
+#### Example Playbook:
+
+```yaml
+- name: Play 1
+  hosts: localhost
+  tasks:
+    - name: Print Date
+      command: date
+    - name: Run Script
+      script: my_script.sh
+    - name: Install httpd
+      yum:
+        name: httpd
+        state: present
+    - name: Start Web Server
+      service:
+        name: httpd
+        state: started
+Playbook Development Tips
+Pay attention to YAML format.
+Host parameter indicates on which host the operations will run.
+Modules (e.g., command, script, yum, service) define actions.
+Playbooks are executed using ansible-playbook command.
+Verification of Playbooks
+
+Crucial to verify playbooks before executing in production.
+Check Mode: ansible-playbook playbook.yml --check
+Executes without making actual changes.
+Diff Mode: ansible-playbook playbook.yml --diff
+Shows differences between current and expected state.
+Syntax Check: ansible-playbook playbook.yml --syntax-check
+Checks playbook syntax.
+Ansible Lint
+
+Command-line tool for linting Ansible playbooks, roles, and collections.
+Checks for errors, bugs, stylistic issues.
+Ensures consistency and quality across playbooks.
+Conditionals in Ansible
+
+Used to run tasks based on specified conditions.
+Examples: Checking OS family for package management.
+yaml
+Copy code
+- name: Install NGINX
+  hosts: all
+  tasks:
+    - name: Install NGINX on Debian
+      apt:
+        name: nginx
+        state: present
+      when: ansible_os_family == 'Debian'
+
+    - name: Install NGINX on Red Hat
+      yum:
+        name: nginx
+        state: present
+      when: ansible_os_family == 'RedHat'
+Ansible Facts
+
+System-specific variables collected during playbook execution.
+Example: Using facts to determine OS and install specific software.
+yaml
+Copy code
+- name: Install Software
+  hosts: all
+  tasks:
+    - name: Install NGINX on Ubuntu 18.04
+      apt:
+        name: nginx
+        state: present
+      when:
+        - ansible_facts['os_family'] == 'Debian'
+        - ansible_facts['distribution_major_version'] == '18'
+Loops in Ansible
+
+Use loops to iterate over tasks multiple times.
+Example: Creating multiple users using a loop.
+yaml
+Copy code
+- name: Create Users
+  hosts: all
+  tasks:
+    - name: Create Users
+      user:
+        name: "{{ item.name }}"
+        uid: "{{ item.uid }}"
+      loop:
+        - { name: 'Joe', uid: 1001 }
+        - { name: 'George', uid: 1002 }
+        - { name: 'Ravi', uid: 1003 }
+Visualization of Loop:
+plaintext
+Copy code
+Task 1: Create User Joe with UID 1001
+Task 2: Create User George with UID 1002
+Task 3: Create User Ravi with UID 1003
+With Directives: Use loop for simple loops, and with_items for older playbooks.
+Advantage of with Directives: Extensive options available, e.g., with_files, with_url, with_mongodb.
+yaml
+Copy code
+- name: Loop Example
+  hosts: all
+  tasks:
+    - name: Loop with Items
+      debug:
+        msg: "{{ item }}"
+      loop:
+        - 'item1'
+        - 'item2'
+        - 'item3'
